@@ -51,9 +51,6 @@ if min_notional_filter:
 else:
     min_notional = 5.5
 
-# Print initial info box
-create_info_box("BNBUSDT", min_qty, max_qty, step_size)
-
 # Define trading parameters
 codigo_operado = "BNBUSDT"
 ativo_operado = "BNB"
@@ -169,6 +166,7 @@ posicao_atual = True
 
 # Main loop to continuously fetch data and execute trading strategy
 while True:
+    create_info_box("BNBUSDT", min_qty, max_qty, step_size)
     dados_atualizados = get_data(codigo=codigo_operado, intervalo=periodo)
     posicao_atual = estrategia_trading(dados_atualizados, codigo_operado, ativo_operado, usdt_amount, posicao_atual)
     if posicao_atual == True:
@@ -181,4 +179,4 @@ while True:
         for ativo in conta["balances"]:
             if ativo["asset"] == "USDT":
                 print_position("USDT", ativo["free"], 0, False)
-    time.sleep(60)  # Wait for 15 minutes before the next iteration
+    time.sleep(60*15)  # Wait for 15 minutes before the next iteration

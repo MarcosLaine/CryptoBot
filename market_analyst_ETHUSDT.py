@@ -49,9 +49,6 @@ if min_notional_filter:
 else:
     min_notional = 5.5
 
-# Print initial info box
-create_info_box("ETHUSDT", min_qty, max_qty, step_size)
-
 # Define trading parameters
 codigo_operado = "ETHUSDT"
 ativo_operado = "ETH"
@@ -141,6 +138,8 @@ def get_valores(ativo_operado, saldo_disponivel):
 posicao_atual = True
 
 while True:
+    # Print initial info box
+    create_info_box("ETHUSDT", min_qty, max_qty, step_size)
     dados_atualizados = get_data(codigo=codigo_operado, intervalo=periodo)
     posicao_atual = estrategia_trading(dados_atualizados, codigo_operado, ativo_operado, usdt_amount, posicao_atual)
     if posicao_atual:
@@ -154,4 +153,4 @@ while True:
         for ativo in conta["balances"]:
             if ativo["asset"] == "USDT":
                 print_position(ativo_operado, ativo["free"], 0, is_positioned=False)
-    time.sleep(60)
+    time.sleep(60*15)
