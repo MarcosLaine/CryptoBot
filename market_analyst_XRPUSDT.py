@@ -131,7 +131,7 @@ def get_valores(ativo_operado, saldo_disponivel):
     return valor_ativo_em_usdt
 
 # Initialize current position status
-posicao_atual = False
+posicao_atual = True
 
 # Main loop to continuously fetch data and execute trading strategy
 while True:
