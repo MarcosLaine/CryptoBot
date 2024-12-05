@@ -5,9 +5,31 @@ from binance.client import Client
 from binance.enums import *
 import math
 from dotenv import load_dotenv
+import textwrap
 load_dotenv()
 
-print("\n===============================================BNBUSDT===============================================")
+def create_info_box(symbol, min_qty, max_qty, step_size):
+    print(f"\n╔═════════════════════════════════ {symbol} ════════════════════════════════╗")
+    print(f"║ Quantidade mínima: {min_qty:<54}║")
+    print(f"║ Quantidade máxima: {max_qty:<54}║")
+    print(f"║ Passo: {step_size:<66}║")
+    print("╟──────────────────────────────────────────────────────────────────────────╢")
+
+def print_moving_averages(rapida, lenta):
+    print(f"║ Última média rápida: {rapida:.3f} | Última média lenta: {lenta:.3f}               ║")
+
+def print_error_message(message):
+    print(f"║ {message:<70}║")
+
+def print_position(ativo, quantidade, valor_usdt, is_positioned=True):
+    if is_positioned:
+        message = f"Posição atual em {ativo}: {quantidade} {ativo} (={valor_usdt:.2f} USDT)"
+    else:
+        message = f"Posição atual: {quantidade} USDT"
+    print(f"║ {message:<73}║")
+    print("╚══════════════════════════════════════════════════════════════════════════╝")
+
+
 # Retrieve API keys from environment variables
 api_key = os.getenv("KEY_BINANCE")
 api_secret = os.getenv("SECRET_BINANCE")
@@ -27,18 +49,15 @@ min_notional_filter = next((f for f in symbol_info["filters"] if f["filterType"]
 if min_notional_filter:
     min_notional = float(min_notional_filter["minNotional"])
 else:
-    # print("MIN_NOTIONAL filter not found for BNBUSDT. Setting a default value.")
-    min_notional = 5.5  # Set a reasonable default value based on typical minimums
+    min_notional = 5.5
 
-# Print lot size filter details
-print("quantidade mínima: ", min_qty, "\nquantidade máxima: ", max_qty, "\npasso (de quanto em quanto se pode negociar): ", step_size)
+# Print initial info box
+create_info_box("BNBUSDT", min_qty, max_qty, step_size)
 
 # Define trading parameters
 codigo_operado = "BNBUSDT"
 ativo_operado = "BNB"
 periodo = Client.KLINE_INTERVAL_30MINUTE
-
-# Ensure the USDT amount is at least the minimum notional value
 usdt_amount = 5.5
 
 def get_data(codigo, intervalo):
@@ -64,7 +83,7 @@ def estrategia_trading(dados, codigo_ativo, ativo_operado, usdt_amount, posicao_
     ultima_media_lenta = dados["media_lenta"].iloc[-1]
     
     # Print the latest moving averages
-    print(f"Última média rápida: {ultima_media_rapida:.3f} | Última média lenta: {ultima_media_lenta:.3f}")
+    print_moving_averages(ultima_media_rapida, ultima_media_lenta)
     
     # Get account information
     conta = client.get_account()
@@ -101,7 +120,7 @@ def estrategia_trading(dados, codigo_ativo, ativo_operado, usdt_amount, posicao_
             # Check if the buy order meets the minimum notional requirement
             order_value = float(quantidade) * current_price
             if order_value < min_notional:
-                print(f"Cannot buy: Order value ({order_value:.2f} USDT) is below minimum notional ({min_notional} USDT)")
+                print_error_message(f"Cannot buy: Order value ({order_value:.2f} USDT) is below minimum notional ({min_notional} USDT)")
                 return posicao_atual
             
             # Place a market buy order
@@ -122,7 +141,7 @@ def estrategia_trading(dados, codigo_ativo, ativo_operado, usdt_amount, posicao_
             order_value = quantidade * current_price
             
             if order_value < min_notional:
-                print(f"Cannot sell: Order value ({order_value:.2f} USDT) is below minimum notional ({min_notional} USDT)")
+                print_error_message(f"Cannot sell: Order value ({order_value:.2f} USDT) is below minimum notional ({min_notional} USDT)")
                 return posicao_atual
                 
             # Place a market sell order
@@ -156,10 +175,10 @@ while True:
         conta = client.get_account()
         for ativo in conta["balances"]:
             if ativo["asset"] == ativo_operado:
-                print("Posição atual em ", ativo_operado, ": ", ativo["free"], ativo_operado, f", isso equivale a {get_valores(ativo_operado, ativo['free']):.2f} USDT\n")
+                print_position(ativo_operado, ativo["free"], get_valores(ativo_operado, ativo['free']))
     else:
         conta = client.get_account()
         for ativo in conta["balances"]:
             if ativo["asset"] == "USDT":
-                print("Vocêe não está posicionado em ", ativo_operado, ". Posição atual: ", ativo["free"], "USDT\n")
-    time.sleep(60*15)  # Wait for 15 minutes before the next iteration
+                print_position("USDT", ativo["free"], 0, False)
+    time.sleep(60)  # Wait for 15 minutes before the next iteration

@@ -1,5 +1,9 @@
 import subprocess 
 import time
+import os
+
+# Limpar o terminal
+os.system('cls' if os.name == 'nt' else 'clear')
 
 # List of scripts to run
 scripts = [

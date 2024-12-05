@@ -13,7 +13,7 @@ CryptoBot is a powerful and flexible bot designed to help you track and manage c
 
 Before you begin, ensure you have met the following requirements:
 
-- You have installed [Python 3.x](https://www.python.org/downloads/)
+- You have installed Anaconda Pyhton [Python 3.x](https://www.anaconda.com/download/success)
 - You have a working internet connection
 - You have an account on a supported cryptocurrency exchange (if applicable)
 
@@ -35,6 +35,7 @@ Before you begin, ensure you have met the following requirements:
 
 3. **Install the required packages:**
 
+   3.1 **Open the Anaconda Prompt and install the required packages:**
    ```bash
    pip install python-binance
    pip install pandas
@@ -55,6 +56,8 @@ Before you begin, ensure you have met the following requirements:
 ## Usage
 
 1. **Run the bot:**
+
+   1.1 **Make sure you are using the Anaconda Interpretes**
 
    ```bash
    python run_all_bots.py
