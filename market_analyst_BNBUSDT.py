@@ -4,6 +4,8 @@ import time
 from binance.client import Client
 from binance.enums import *
 import math
+from dotenv import load_dotenv
+load_dotenv()
 
 print("\n===============================================BNBUSDT===============================================")
 # Retrieve API keys from environment variables
@@ -13,13 +15,20 @@ api_secret = os.getenv("SECRET_BINANCE")
 # Initialize Binance client
 client = Client(api_key, api_secret)
 
-# Get symbol information for BNB
-symbol_info = client.get_symbol_info("BNB")
+# Get symbol information for BNBUSDT
+symbol_info = client.get_symbol_info("BNBUSDT")
 lot_size_filter = next(f for f in symbol_info["filters"] if f["filterType"] == "LOT_SIZE")
 min_qty = float(lot_size_filter["minQty"])
 max_qty = float(lot_size_filter["maxQty"])
 step_size = float(lot_size_filter["stepSize"])
 
+# Retrieve the minimum notional value
+min_notional_filter = next((f for f in symbol_info["filters"] if f["filterType"] == "MIN_NOTIONAL"), None)
+if min_notional_filter:
+    min_notional = float(min_notional_filter["minNotional"])
+else:
+    # print("MIN_NOTIONAL filter not found for BNBUSDT. Setting a default value.")
+    min_notional = 5.5  # Set a reasonable default value based on typical minimums
 
 # Print lot size filter details
 print("quantidade mínima: ", min_qty, "\nquantidade máxima: ", max_qty, "\npasso (de quanto em quanto se pode negociar): ", step_size)
@@ -30,7 +39,7 @@ ativo_operado = "BNB"
 periodo = Client.KLINE_INTERVAL_30MINUTE
 
 # Ensure the USDT amount is at least the minimum notional value
-usdt_amount = 5.0
+usdt_amount = 5.5
 
 def get_data(codigo, intervalo):
     # Fetch historical kline data
@@ -55,7 +64,7 @@ def estrategia_trading(dados, codigo_ativo, ativo_operado, usdt_amount, posicao_
     ultima_media_lenta = dados["media_lenta"].iloc[-1]
     
     # Print the latest moving averages
-    print(f"Última média rápida: {ultima_media_rapida:.4f} | Última média lenta: {ultima_media_lenta:.4f}")
+    print(f"Última média rápida: {ultima_media_rapida:.3f} | Última média lenta: {ultima_media_lenta:.3f}")
     
     # Get account information
     conta = client.get_account()
@@ -73,15 +82,28 @@ def estrategia_trading(dados, codigo_ativo, ativo_operado, usdt_amount, posicao_
     quantidade = usdt_amount / current_price
     
     # Determine the precision from step_size
-    step_size = float(lot_size_filter["stepSize"])
     precision = int(round(-math.log(step_size, 10)))
     
     # Adjust the quantity to the allowed precision
     quantidade = round(quantidade, precision)
     
+    # Ensure the order value is above the minimum notional value
+    order_value = quantidade * current_price
+    if order_value < min_notional:
+        quantidade = math.ceil(min_notional / current_price * (10 ** precision)) / (10 ** precision)
+    
+    # Ensure the quantity is a valid string representation of a decimal number
+    quantidade = f"{quantidade:.{precision}f}"
+    
     # Trading logic based on moving averages
     if ultima_media_rapida > ultima_media_lenta:
         if posicao_atual == False:
+            # Check if the buy order meets the minimum notional requirement
+            order_value = float(quantidade) * current_price
+            if order_value < min_notional:
+                print(f"Cannot buy: Order value ({order_value:.2f} USDT) is below minimum notional ({min_notional} USDT)")
+                return posicao_atual
+            
             # Place a market buy order
             order = client.create_order(
                 symbol=codigo_ativo,
@@ -94,12 +116,21 @@ def estrategia_trading(dados, codigo_ativo, ativo_operado, usdt_amount, posicao_
             
     elif ultima_media_rapida < ultima_media_lenta:
         if posicao_atual == True:
+            # Calculate the order value before placing the sell order
+            quantidade = float(saldo_disponivel)
+            quantidade = round(quantidade, precision)
+            order_value = quantidade * current_price
+            
+            if order_value < min_notional:
+                print(f"Cannot sell: Order value ({order_value:.2f} USDT) is below minimum notional ({min_notional} USDT)")
+                return posicao_atual
+                
             # Place a market sell order
             order = client.create_order(
                 symbol=codigo_ativo,
                 side=SIDE_SELL,
                 type=ORDER_TYPE_MARKET,
-                quantity=int(saldo_disponivel * 1000)/1000
+                quantity=f"{quantidade:.{precision}f}"
             )
             print("Venda realizada")
             posicao_atual = False
@@ -130,5 +161,5 @@ while True:
         conta = client.get_account()
         for ativo in conta["balances"]:
             if ativo["asset"] == "USDT":
-                print("Posição atual: ", ativo["free"], "USDT\n")
+                print("Vocêe não está posicionado em ", ativo_operado, ". Posição atual: ", ativo["free"], "USDT\n")
     time.sleep(60*15)  # Wait for 15 minutes before the next iteration

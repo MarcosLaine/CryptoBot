@@ -4,6 +4,8 @@ import time
 from binance.client import Client
 from binance.enums import *
 import math
+from dotenv import load_dotenv
+load_dotenv()
 
 print("\n===============================================SOLUSDT===============================================")
 # Retrieve API keys from environment variables
@@ -20,6 +22,14 @@ min_qty = float(lot_size_filter["minQty"])
 max_qty = float(lot_size_filter["maxQty"])
 step_size = float(lot_size_filter["stepSize"])
 
+
+# Retrieve the minimum notional value
+min_notional_filter = next((f for f in symbol_info["filters"] if f["filterType"] == "MIN_NOTIONAL"), None)
+if min_notional_filter:
+    min_notional = float(min_notional_filter["minNotional"])
+else:
+    # print("MIN_NOTIONAL filter not found for XRPUSDT. Setting a default value.")
+    min_notional = 5.0  # Set a reasonable default value based on typical minimums
 
 # Print lot size filter details
 print("quantidade mínima: ", min_qty, "\nquantidade máxima: ", max_qty, "\npasso (de quanto em quanto se pode negociar): ", step_size)
@@ -78,6 +88,15 @@ def estrategia_trading(dados, codigo_ativo, ativo_operado, usdt_amount, posicao_
     
     # Adjust the quantity to the allowed precision
     quantidade = round(quantidade, precision)
+    
+     # Ensure the order value is above the minimum notional value
+    order_value = quantidade * current_price
+    if order_value < min_notional:
+        # print(f"Order value {order_value:.2f} is below the minimum notional value {min_notional:.2f}. Adjusting quantity.")
+        quantidade = math.ceil(min_notional / current_price * (10 ** precision)) / (10 ** precision)
+    
+    # Ensure the quantity is a valid string representation of a decimal number
+    quantidade = f"{quantidade:.{precision}f}"
     
     # Trading logic based on moving averages
     if ultima_media_rapida > ultima_media_lenta:

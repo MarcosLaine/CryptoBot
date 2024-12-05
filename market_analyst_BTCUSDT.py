@@ -4,6 +4,8 @@ import time
 from binance.client import Client
 from binance.enums import *
 import math
+from dotenv import load_dotenv
+load_dotenv()
 
 print("\n===============================================BTCUSDT===============================================")
 # Retrieve API keys from environment variables
