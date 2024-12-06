@@ -7,11 +7,12 @@ import math
 from dotenv import load_dotenv
 load_dotenv()
 
-def create_info_box(symbol, min_qty, max_qty, step_size):
+def create_info_box(symbol, min_qty, max_qty, step_size, current_price):
     print(f"\n╔═════════════════════════════════ {symbol} ════════════════════════════════╗")
     print(f"║ Quantidade mínima: {min_qty:<54}║")
     print(f"║ Quantidade máxima: {max_qty:<54}║")
     print(f"║ Passo: {step_size:<66}║")
+    print(f"║ Preço atual: {current_price:<60}║")
     print("╟──────────────────────────────────────────────────────────────────────────╢")
 
 def print_moving_averages(rapida, lenta):
@@ -37,6 +38,11 @@ client = Client(api_key, api_secret)
 
 # Get symbol information for SOLUSDT
 symbol_info = client.get_symbol_info("SOLUSDT")
+
+# Get current price for SOLUSDT
+ticker = client.get_symbol_ticker(symbol="SOLUSDT")
+current_price = float(ticker["price"])
+
 lot_size_filter = next(f for f in symbol_info["filters"] if f["filterType"] == "LOT_SIZE")
 min_qty = float(lot_size_filter["minQty"])
 max_qty = float(lot_size_filter["maxQty"])
@@ -104,27 +110,30 @@ def estrategia_trading(dados, codigo_ativo, ativo_operado, usdt_amount, posicao_
                 type=ORDER_TYPE_MARKET,
                 quantity=quantidade
             )
-            print("Compra realizada")
+            print("║ Compra realizada{:<59}║")
             posicao_atual = True
             
     elif ultima_media_rapida < ultima_media_lenta:
         if posicao_atual:
             quantidade = float(saldo_disponivel)
-            quantidade = round(quantidade, precision)
+            quantidade = math.floor(quantidade / step_size) * step_size
             order_value = quantidade * current_price
             
             if order_value < min_notional:
                 print_error_message(f"Cannot sell: Order value ({order_value:.2f} USDT) is below minimum notional ({min_notional} USDT)")
                 return posicao_atual
                 
-            order = client.create_order(
-                symbol=codigo_ativo,
-                side=SIDE_SELL,
-                type=ORDER_TYPE_MARKET,
-                quantity=f"{quantidade:.{precision}f}"
-            )
-            print("Venda realizada")
-            posicao_atual = False
+            try:
+                order = client.create_order(
+                    symbol=codigo_ativo,
+                    side=SIDE_SELL,
+                    type=ORDER_TYPE_MARKET,
+                    quantity=f"{quantidade:.{precision}f}"
+                )
+                print("║ Venda realizada{:<60}║")
+                posicao_atual = False
+            except Exception as e:
+                print_error_message(f"Order failed: {e}")
             
     return posicao_atual
 
@@ -140,17 +149,18 @@ posicao_atual = True
 while True:
     
     # Print initial info box
-    create_info_box("SOLUSDT", min_qty, max_qty, step_size)
+    create_info_box("SOLUSDT", min_qty, max_qty, step_size, current_price)
     dados_atualizados = get_data(codigo=codigo_operado, intervalo=periodo)
     posicao_atual = estrategia_trading(dados_atualizados, codigo_operado, ativo_operado, usdt_amount, posicao_atual)
-    if posicao_atual:
-        conta = client.get_account()
+    
+    conta = client.get_account()
+    
+    if posicao_atual == True and get_valores(ativo_operado, conta["balances"][0]["free"]) > step_size:
         for ativo in conta["balances"]:
             if ativo["asset"] == ativo_operado:
                 valor_usdt = get_valores(ativo_operado, ativo["free"])
                 print_position(ativo_operado, ativo["free"], valor_usdt)
     else:
-        conta = client.get_account()
         for ativo in conta["balances"]:
             if ativo["asset"] == "USDT":
                 print_position(ativo_operado, ativo["free"], 0, is_positioned=False)

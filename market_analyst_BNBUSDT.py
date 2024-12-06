@@ -8,11 +8,12 @@ from dotenv import load_dotenv
 import textwrap
 load_dotenv()
 
-def create_info_box(symbol, min_qty, max_qty, step_size):
+def create_info_box(symbol, min_qty, max_qty, step_size, current_price):
     print(f"\n╔═════════════════════════════════ {symbol} ════════════════════════════════╗")
     print(f"║ Quantidade mínima: {min_qty:<54}║")
     print(f"║ Quantidade máxima: {max_qty:<54}║")
     print(f"║ Passo: {step_size:<66}║")
+    print(f"║ Preço atual: {current_price:<60}║")
     print("╟──────────────────────────────────────────────────────────────────────────╢")
 
 def print_moving_averages(rapida, lenta):
@@ -29,7 +30,6 @@ def print_position(ativo, quantidade, valor_usdt, is_positioned=True):
     print(f"║ {message:<73}║")
     print("╚══════════════════════════════════════════════════════════════════════════╝")
 
-
 # Retrieve API keys from environment variables
 api_key = os.getenv("KEY_BINANCE")
 api_secret = os.getenv("SECRET_BINANCE")
@@ -39,6 +39,11 @@ client = Client(api_key, api_secret)
 
 # Get symbol information for BNBUSDT
 symbol_info = client.get_symbol_info("BNBUSDT")
+
+# Get current price for BNBUSDT
+ticker = client.get_symbol_ticker(symbol="BNBUSDT")
+current_price = float(ticker["price"])
+
 lot_size_filter = next(f for f in symbol_info["filters"] if f["filterType"] == "LOT_SIZE")
 min_qty = float(lot_size_filter["minQty"])
 max_qty = float(lot_size_filter["maxQty"])
@@ -127,7 +132,7 @@ def estrategia_trading(dados, codigo_ativo, ativo_operado, usdt_amount, posicao_
                 type=ORDER_TYPE_MARKET,
                 quantity=quantidade
             )
-            print("Compra realizada")
+            print("║ Compra realizada{:<60}║")
             posicao_atual = True
             
     elif ultima_media_rapida < ultima_media_lenta:
@@ -148,9 +153,9 @@ def estrategia_trading(dados, codigo_ativo, ativo_operado, usdt_amount, posicao_
                 type=ORDER_TYPE_MARKET,
                 quantity=f"{quantidade:.{precision}f}"
             )
-            print("Venda realizada")
-            posicao_atual = False
+            print("║ Venda realizada{:<60}║")
             
+        posicao_atual = False
     return posicao_atual
 
 def get_valores(ativo_operado, saldo_disponivel):
@@ -166,17 +171,21 @@ posicao_atual = True
 
 # Main loop to continuously fetch data and execute trading strategy
 while True:
-    create_info_box("BNBUSDT", min_qty, max_qty, step_size)
+    # Print initial info box
+    create_info_box("BNBUSDT", min_qty, max_qty, step_size, current_price)
     dados_atualizados = get_data(codigo=codigo_operado, intervalo=periodo)
     posicao_atual = estrategia_trading(dados_atualizados, codigo_operado, ativo_operado, usdt_amount, posicao_atual)
-    if posicao_atual == True:
-        conta = client.get_account()
+    
+    # Ensure 'conta' is defined before using it
+    conta = client.get_account()
+    
+    if posicao_atual == True and get_valores(ativo_operado, conta["balances"][0]["free"]) > step_size:
         for ativo in conta["balances"]:
             if ativo["asset"] == ativo_operado:
                 print_position(ativo_operado, ativo["free"], get_valores(ativo_operado, ativo['free']))
     else:
-        conta = client.get_account()
         for ativo in conta["balances"]:
             if ativo["asset"] == "USDT":
                 print_position("USDT", ativo["free"], 0, False)
+    
     time.sleep(60*15)  # Wait for 15 minutes before the next iteration

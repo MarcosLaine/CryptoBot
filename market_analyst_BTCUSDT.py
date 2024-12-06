@@ -7,15 +7,16 @@ import math
 from dotenv import load_dotenv
 load_dotenv()
 
-def create_info_box(symbol, min_qty, max_qty, step_size):
+def create_info_box(symbol, min_qty, max_qty, step_size, current_price):
     print(f"\n╔═════════════════════════════════ {symbol} ════════════════════════════════╗")
     print(f"║ Quantidade mínima: {min_qty:<54}║")
     print(f"║ Quantidade máxima: {max_qty:<54}║")
     print(f"║ Passo: {step_size:<66}║")
+    print(f"║ Preço atual: {current_price:<60}║")
     print("╟──────────────────────────────────────────────────────────────────────────╢")
 
 def print_moving_averages(rapida, lenta):
-    print(f"║ Última média rápida: {rapida:.3f} | Última média lenta: {lenta:.3f}         ║")
+    print(f"║ Última média rápida: {rapida:.3f} | Última média lenta: {lenta:.3f}           ║")
 
 def print_error_message(message):
     print(f"║ {message:<70}║")
@@ -37,6 +38,11 @@ client = Client(api_key, api_secret)
 
 # Get symbol information for BTCUSDT
 symbol_info = client.get_symbol_info("BTCUSDT")
+
+# Get current price for BTCUSDT
+ticker = client.get_symbol_ticker(symbol="BTCUSDT")
+current_price = float(ticker["price"])
+
 lot_size_filter = next(f for f in symbol_info["filters"] if f["filterType"] == "LOT_SIZE")
 min_qty = float(lot_size_filter["minQty"])
 max_qty = float(lot_size_filter["maxQty"])
@@ -104,7 +110,7 @@ def estrategia_trading(dados, codigo_ativo, ativo_operado, usdt_amount, posicao_
                 type=ORDER_TYPE_MARKET,
                 quantity=quantidade
             )
-            print("Compra realizada")
+            print("║ Compra realizada{:<59}║")
             posicao_atual = True
             
     elif ultima_media_rapida < ultima_media_lenta:
@@ -123,9 +129,9 @@ def estrategia_trading(dados, codigo_ativo, ativo_operado, usdt_amount, posicao_
                 type=ORDER_TYPE_MARKET,
                 quantity=f"{quantidade:.{precision}f}"
             )
-            print("Venda realizada")
-            posicao_atual = False
+            print("║ Venda realizada{:<60}║")
             
+        posicao_atual = False
     return posicao_atual
 
 def get_valores(ativo_operado, saldo_disponivel):
@@ -139,17 +145,18 @@ posicao_atual = True
 
 while True:
     # Print initial info box
-    create_info_box("BTCUSDT", min_qty, max_qty, step_size)
+    create_info_box("BTCUSDT", min_qty, max_qty, step_size, current_price)
     dados_atualizados = get_data(codigo=codigo_operado, intervalo=periodo)
     posicao_atual = estrategia_trading(dados_atualizados, codigo_operado, ativo_operado, usdt_amount, posicao_atual)
-    if posicao_atual:
-        conta = client.get_account()
+    
+    conta = client.get_account()
+    
+    if posicao_atual == True and get_valores(ativo_operado, conta["balances"][0]["free"]) > step_size:
         for ativo in conta["balances"]:
             if ativo["asset"] == ativo_operado:
                 valor_usdt = get_valores(ativo_operado, ativo["free"])
                 print_position(ativo_operado, ativo["free"], valor_usdt)
     else:
-        conta = client.get_account()
         for ativo in conta["balances"]:
             if ativo["asset"] == "USDT":
                 print_position(ativo_operado, ativo["free"], 0, is_positioned=False)

@@ -11,7 +11,8 @@ scripts = [
     "market_analyst_SOLUSDT.py",
     "market_analyst_ETHUSDT.py",
     "market_analyst_BTCUSDT.py",
-    "market_analyst_BNBUSDT.py"
+    "market_analyst_BNBUSDT.py",
+    "get_usdt_balance.py"
 ]
 
 # Start each script in a separate process
