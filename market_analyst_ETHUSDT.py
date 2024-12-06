@@ -110,7 +110,7 @@ def estrategia_trading(dados, codigo_ativo, ativo_operado, usdt_amount, posicao_
                 type=ORDER_TYPE_MARKET,
                 quantity=quantidade
             )
-            print("║ Compra realizada{:<59}║")
+            print("║ Compra realizada                                                         ║")
             posicao_atual = True
             
     elif ultima_media_rapida < ultima_media_lenta:
@@ -129,7 +129,7 @@ def estrategia_trading(dados, codigo_ativo, ativo_operado, usdt_amount, posicao_
                 type=ORDER_TYPE_MARKET,
                 quantity=f"{quantidade:.{precision}f}"
             )
-            print("║ Venda realizada{:<60}║")
+            print("║ Venda realizada                                                           ║")
             posicao_atual = False
             
     return posicao_atual
@@ -151,7 +151,7 @@ while True:
     
     conta = client.get_account()
     
-    if posicao_atual == True and get_valores(ativo_operado, conta["balances"][0]["free"]) > step_size:
+    if posicao_atual:
         for ativo in conta["balances"]:
             if ativo["asset"] == ativo_operado:
                 valor_usdt = get_valores(ativo_operado, ativo["free"])
