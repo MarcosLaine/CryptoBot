@@ -49,8 +49,8 @@ Before you begin, ensure you have met the following requirements:
    - Create a `.env` file in the root directory and add your API keys:
 
      ```plaintext
-     EXCHANGE_API_KEY=your_api_key
-     EXCHANGE_API_SECRET=your_api_secret
+     EXCHANGE_API_KEY= "your_api_key"
+     EXCHANGE_API_SECRET= "your_api_secret"
      ```
 
 ## Usage
