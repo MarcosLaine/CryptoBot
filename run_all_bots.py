@@ -20,7 +20,7 @@ processes = []
 for script in scripts:
     process = subprocess.Popen(["python", script])
     processes.append(process)
-    time.sleep(7) # Wait for 7 seconds before starting the next script
+    time.sleep(10) # Wait for 10 seconds before starting the next script
 
 # Optionally, wait for all processes to complete
 for process in processes:

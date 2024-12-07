@@ -54,13 +54,13 @@ min_notional_filter = next((f for f in symbol_info["filters"] if f["filterType"]
 if min_notional_filter:
     min_notional = float(min_notional_filter["minNotional"])
 else:
-    min_notional = 5.5
+    min_notional = 5
 
 # Define trading parameters
 codigo_operado = "BNBUSDT"
 ativo_operado = "BNB"
 periodo = Client.KLINE_INTERVAL_30MINUTE
-usdt_amount = 5.5
+usdt_amount = 6
 
 def get_data(codigo, intervalo):
     # Fetch historical kline data
@@ -122,7 +122,7 @@ def estrategia_trading(dados, codigo_ativo, ativo_operado, usdt_amount, posicao_
             # Check if the buy order meets the minimum notional requirement
             order_value = float(quantidade) * current_price
             if order_value < min_notional:
-                print_error_message(f"Cannot buy: Order value ({order_value:.2f} USDT) is below minimum notional ({min_notional} USDT)")
+                print_error_message(f"Cannot buy: Order value ({order_value:.2f} USDT) is below minimum notional ({min_notional} USDT)  ")
                 return posicao_atual
             
             # Place a market buy order
@@ -143,7 +143,7 @@ def estrategia_trading(dados, codigo_ativo, ativo_operado, usdt_amount, posicao_
             order_value = quantidade * current_price
             
             if order_value < min_notional:
-                print_error_message(f"Cannot sell: Order value ({order_value:.2f} USDT) is below minimum notional ({min_notional} USDT)")
+                print_error_message(f"Cannot sell: Order value ({order_value:.2f} USDT) is below minimum notional ({min_notional} USDT)  ")
                 return posicao_atual
                 
             # Place a market sell order
