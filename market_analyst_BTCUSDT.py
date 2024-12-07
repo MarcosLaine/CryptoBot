@@ -16,7 +16,7 @@ def create_info_box(symbol, min_qty, max_qty, step_size, current_price):
     print("╟──────────────────────────────────────────────────────────────────────────╢")
 
 def print_moving_averages(rapida, lenta):
-    print(f"║ Última média rápida: {rapida:.3f} | Última média lenta: {lenta:.3f}           ║")
+    print(f"║ Última média rápida: {rapida:.3f} | Última média lenta: {lenta:.3f}          ║")
 
 def print_error_message(message):
     print(f"║ {message:<70}║")
@@ -110,7 +110,7 @@ def estrategia_trading(dados, codigo_ativo, ativo_operado, usdt_amount, posicao_
                 type=ORDER_TYPE_MARKET,
                 quantity=quantidade
             )
-            print("║ Compra realizada                                                          ║")
+            print("║ Compra realizada                                                         ║")
             posicao_atual = True
             
     elif ultima_media_rapida < ultima_media_lenta:
@@ -141,7 +141,7 @@ def get_valores(ativo_operado, saldo_disponivel):
     valor_ativo_em_usdt = saldo_disponivel * preco_ativo_em_usdt
     return valor_ativo_em_usdt
 
-posicao_atual = True
+posicao_atual = False
 
 while True:
     # Print initial info box

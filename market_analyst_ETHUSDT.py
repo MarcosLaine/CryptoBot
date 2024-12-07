@@ -141,7 +141,7 @@ def get_valores(ativo_operado, saldo_disponivel):
     valor_ativo_em_usdt = saldo_disponivel * preco_ativo_em_usdt
     return valor_ativo_em_usdt
 
-posicao_atual = True
+posicao_atual = False
 
 while True:
     # Print initial info box
