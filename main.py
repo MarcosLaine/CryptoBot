@@ -76,6 +76,9 @@ def main():
             # Display RSI
             print_rsi(rsi_atual)
 
+            # Sempre exibir a linha divisória
+            print("╟──────────────────────────────────────────────────────────────────────────╢")
+
             # Execute trading strategy
             is_totally_positioned, is_partially_positioned, not_positioned = posicoes[ativo]
             is_totally_positioned, is_partially_positioned, not_positioned, status_message = estrategia_trading(
@@ -86,7 +89,6 @@ def main():
 
             # Print status message if a trade was executed
             if status_message:
-                print("╟──────────────────────────────────────────────────────────────────────────╢")
                 print(status_message)
 
             # Display detailed position
