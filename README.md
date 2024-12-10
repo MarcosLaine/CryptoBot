@@ -8,12 +8,13 @@ CryptoBot is a powerful and flexible bot designed to help you track and manage c
 - Customizable alerts for price changes
 - Portfolio management and analytics
 - Integration with popular exchanges
+- Automated trading strategies based on RSI and moving averages
 
 ## Prerequisites
 
 Before you begin, ensure you have met the following requirements:
 
-- You have installed Anaconda Pyhton [Python 3.x](https://www.anaconda.com/download/success)
+- You have installed [Anaconda Python 3.x](https://www.anaconda.com/download/success)
 - You have a working internet connection
 - You have an account on a supported cryptocurrency exchange (if applicable)
 
@@ -35,10 +36,10 @@ Before you begin, ensure you have met the following requirements:
 
 3. **Install the required packages:**
 
-   3.1 **Open the Anaconda Prompt and install the required packages:**
+   Open the Anaconda Prompt and install the required packages:
+
    ```bash
-   pip install python-binance
-   pip install pandas
+   pip install python-binance pandas
    ```
 
 ## Configuration
@@ -57,13 +58,21 @@ Before you begin, ensure you have met the following requirements:
 
 1. **Run the bot:**
 
-   1.1 **Make sure you are using the Anaconda Interpretes**
+   Make sure you are using the Anaconda Interpreter
 
    ```bash
-   python run_all_bots.py
+   python main.py
    ```
 
 2. **Monitor the console for real-time updates and alerts.**
+
+## Project Structure
+
+- **main.py**: Main script to run the bot.
+- **src/strategy/estrategia.py**: Contains trading strategy logic.
+- **src/information/exibir_info.py**: Handles information display.
+- **utils/dados.py**: Utility functions for data handling.
+- **Indicadores/**: Contains indicator calculation modules.
 
 ## Contact
 
