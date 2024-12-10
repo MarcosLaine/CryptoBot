@@ -45,9 +45,16 @@ def estrategia_trading(dados, ativo, client, is_totally_positioned, is_partially
 
     # Calculate current value in USD
     valor_em_usdt = saldo_disponivel * preco_atual
-
+    
+    if ultimo_rsi < 70 or ultimo_rsi > 30:
+        if ultima_media_curta > ultima_media_longa:
+            if is_partially_positioned:
+                return is_totally_positioned, is_partially_positioned, not_positioned, " Não compra pois já está parcialmente posicionado" #Não compra pois já está parcialmente posicionado
+            if not_positioned or valor_em_usdt < 5:
+                client.create_order(symbol=ativo, side="BUY", type="MARKET", quantity=f"{quantidade_parcial:.{precision}f}")
+                return False, True, False, " Compra parcial realizada (parcialmente posicionado agora)" #Compra parcial realizada
     # Condições de Compra
-    if ultimo_rsi <= 30: 
+    if ultimo_rsi <= 30:
         if ultima_media_curta < ultima_media_longa: #RSI abaixo e media curta abaixo da media longa
             if is_partially_positioned:
                 return is_totally_positioned, is_partially_positioned, not_positioned, " Não compra pois já está parcialmente posicionado" #Não compra pois já está parcialmente posicionado
