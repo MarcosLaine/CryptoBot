@@ -74,7 +74,12 @@ Before you begin, ensure you have met the following requirements:
 - **utils/dados.py**: Utility functions for data handling.
 - **Indicadores/**: Contains indicator calculation modules.
 
+## Future Features
+
+- [ ] Add a GUI for the bot.
+- [ ] Add MACD indicator for the strategy.
+- [ ] Add Bollinger Bands indicator for the strategy.
+
 ## Contact
 
 If you have any questions or feedback, feel free to reach out at [marcospslaine@gmail.com].
-
