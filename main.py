@@ -80,27 +80,37 @@ def main():
             print("╟──────────────────────────────────────────────────────────────────────────╢")
 
             # Execute trading strategy
-            is_totally_positioned, is_partially_positioned, not_positioned = posicoes[ativo]
-            is_totally_positioned, is_partially_positioned, not_positioned, status_message = estrategia_trading(
-                dados, ativo, client, is_totally_positioned, is_partially_positioned, not_positioned
-            )
-            # Update the position state
-            posicoes[ativo] = (is_totally_positioned, is_partially_positioned, not_positioned)
+            try:
+                is_totally_positioned, is_partially_positioned, not_positioned = posicoes[ativo]
+                is_totally_positioned, is_partially_positioned, not_positioned, status_message = estrategia_trading(
+                    dados, ativo, client, is_totally_positioned, is_partially_positioned, not_positioned
+                )
+                # Update the position state
+                posicoes[ativo] = (is_totally_positioned, is_partially_positioned, not_positioned)
 
-            # Print status message if a trade was executed
-            if status_message:
-                print(status_message)
+                # Print status message if a trade was executed
+                if status_message:
+                    print(status_message)
+
+            except Exception as e:
+                print(f" Erro na execução da estratégia: {str(e)}")
+                continue
 
             # Display detailed position
-            conta = client.get_account()
-            saldo_disponivel = conta["balances"]
+            try:
+                conta = client.get_account()
+                saldo_disponivel = conta["balances"]
 
-            for saldo in saldo_disponivel:
-                if saldo["asset"] == ativo.split("USDT")[0]:
-                    valor_usdt = float(saldo["free"]) * current_price
-                    print(f" Valor em USDT: {valor_usdt:.2f}")
-                    print(f" Posição em {ativo.split('USDT')[0]}: {saldo['free']} {ativo.split('USDT')[0]}")
-                    break
+                for saldo in saldo_disponivel:
+                    if saldo["asset"] == ativo.split("USDT")[0]:
+                        valor_usdt = float(saldo["free"]) * current_price
+                        print(f" Valor em USDT: {valor_usdt:.2f}")
+                        print(f" Posição em {ativo.split('USDT')[0]}: {saldo['free']} {ativo.split('USDT')[0]}")
+                        break
+
+            except Exception as e:
+                print(f" Erro ao obter saldo: {str(e)}")
+                continue
 
             # Separator for readability
             print("╚══════════════════════════════════════════════════════════════════════════╝")
