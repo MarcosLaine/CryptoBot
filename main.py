@@ -2,12 +2,12 @@ import os
 import time
 from binance.client import Client
 from dotenv import load_dotenv
-from utils.dados import obter_dados_historicos
-from Indicators.medias_moveis import calcular_medias_moveis
+from utils.data import obter_dados_historicos
+from Indicators.moving_averages import calcular_medias_moveis
 from Indicators.rsi import calcular_rsi
-from src.strategy.estrategia import estrategia_trading
-from src.information.exibir_info import create_info_box, print_moving_averages, print_rsi, print_position
-from src.information.verificacao_posicao import verificar_estado_inicial
+from src.strategy.tranding_strategy import estrategia_trading
+from src.information.show_info import create_info_box, print_moving_averages, print_rsi, print_position
+from src.information.check_position import verificar_estado_inicial
 
 def main():
     # Load environment variables
