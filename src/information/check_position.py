@@ -8,7 +8,7 @@ def verificar_estado_inicial(client, ativo, preco_atual):
         preco_atual (float): Preço atual do ativo.
 
     Retorna:
-        tuple: Estados de posição inicial (is_totally_positioned, is_partially_positioned, not_positioned).
+        tuple: (is_totally_positioned, not_positioned)
     """
     # Obtém saldo do ativo
     conta = client.get_account()
@@ -21,10 +21,9 @@ def verificar_estado_inicial(client, ativo, preco_atual):
     # Calcula o valor atual em USDT
     valor_em_usdt = saldo_disponivel * preco_atual
 
-    # Determina o estado de posição
+    # Determina o estado de posição:
+    # Se o valor em USDT for igual ou superior a 15, consideramos totalmente posicionado.
     if valor_em_usdt >= 15:
-        return True, False, False  # Totalmente posicionado
-    elif 4.99 <= valor_em_usdt < 15:
-        return False, True, False  # Parcialmente posicionado
+        return True, False  # Totalmente posicionado
     else:
-        return False, False, True  # Não posicionado
+        return False, True  # Não posicionado

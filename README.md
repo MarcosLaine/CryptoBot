@@ -69,13 +69,11 @@ Before you begin, ensure you have met the following requirements:
 ## Project Structure
 
 - **main.py**: Main script to run the bot.
-- **src/strategy/trading_strategy.py**: Contains trading strategy logic.
+- **src/strategy/tranding_strategy.py**: Contains trading strategy logic based solely on moving averages.
 - **src/information/show_info.py**: Handles information display.
 - **src/information/check_position.py**: Handles position checking.
 - **utils/data.py**: Utility functions for data handling.
-- **indicators/moving_average.py**: Contains the moving average calculation logic.
-- **indicators/rsi.py**: Contains the RSI calculation logic.
-
+- **Indicators/moving_averages.py**: Contains the moving average calculation logic.
 
 ## Future Features
 
