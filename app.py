@@ -1,6 +1,6 @@
 from flask import Flask
 import threading
-from main import main  # Usa sua lógica de trading já implementada
+from bot import main  # Usa sua lógica de trading já implementada
 
 app = Flask(__name__)
 
