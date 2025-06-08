@@ -1,8 +1,8 @@
 name: Run CryptoBot
 
 on:
-  schedule:
-    - cron: '0 */2 * * *'  # Executa a cada 2 horas
+#  schedule:
+#    - cron: '0 */2 * * *'  # Executa a cada 2 horas
   workflow_dispatch:        # Permite executar manualmente também
 
 jobs:
