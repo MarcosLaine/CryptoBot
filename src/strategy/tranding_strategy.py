@@ -1,6 +1,6 @@
 import math
 
-def estrategia_trading(dados, ativo, client, is_totally_positioned, not_positioned):
+def estrategia_trading(dados, ativo, client, is_totally_positioned, not_positioned, investment_amount=10.0):
     """
         Executa lógica de compra e venda baseada em médias móveis, sem utilizar o RSI.
 
@@ -10,6 +10,7 @@ def estrategia_trading(dados, ativo, client, is_totally_positioned, not_position
         ativo (str): Símbolo do ativo.
         client (Client): Cliente Binance.
         is_totally_positioned, not_positioned (bool): Estados de posição.
+        investment_amount (float): Valor em USDT para investir por operação (padrão: 10.0).
 
 
     Retorna:
@@ -22,8 +23,10 @@ def estrategia_trading(dados, ativo, client, is_totally_positioned, not_position
     ticker = client.get_symbol_ticker(symbol=ativo)
     preco_atual = float(ticker['price'])
 
-    # Quantidades
-    quantidade_total = 20 / preco_atual
+    # Quantidades - usar o investment_amount configurado pelo usuário
+    # Se investment_amount for 0, usar valor padrão de 10 USD
+    amount_to_invest = investment_amount if investment_amount > 0 else 10.0
+    quantidade_total = amount_to_invest / preco_atual
 
     # Ajustar precisão
     symbol_info = client.get_symbol_info(ativo)
@@ -34,7 +37,7 @@ def estrategia_trading(dados, ativo, client, is_totally_positioned, not_position
     quantidade_total = max(round(quantidade_total, precision), min_qty)
 
     # Get current asset balance
-    conta = client.get_account()
+    conta = client.get_account(recvWindow=60000)
     saldo_disponivel = 0
     for item in conta['balances']:
         if item['asset'] == ativo.split("USDT")[0]:
@@ -52,7 +55,8 @@ def estrategia_trading(dados, ativo, client, is_totally_positioned, not_position
                 symbol=ativo, 
                 side="BUY", 
                 type="MARKET", 
-                quantity=f"{quantidade_total:.{precision}f}"
+                quantity=f"{quantidade_total:.{precision}f}",
+                recvWindow=60000
             )
             is_totally_positioned = True
             return is_totally_positioned, " Compra realizada"
@@ -65,7 +69,8 @@ def estrategia_trading(dados, ativo, client, is_totally_positioned, not_position
             symbol=ativo, 
             side="SELL", 
             type="MARKET", 
-            quantity=f"{saldo_disponivel:.{precision}f}"
+            quantity=f"{saldo_disponivel:.{precision}f}",
+            recvWindow=60000
         )
         is_totally_positioned = False
         return is_totally_positioned, " Venda realizada"

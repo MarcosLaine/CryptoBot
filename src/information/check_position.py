@@ -11,7 +11,7 @@ def verificar_estado_inicial(client, ativo, preco_atual):
         tuple: (is_totally_positioned, not_positioned)
     """
     # Obtém saldo do ativo
-    conta = client.get_account()
+    conta = client.get_account(recvWindow=60000)
     saldo_disponivel = 0
     for item in conta['balances']:
         if item['asset'] == ativo.split("USDT")[0]:
@@ -22,8 +22,9 @@ def verificar_estado_inicial(client, ativo, preco_atual):
     valor_em_usdt = saldo_disponivel * preco_atual
 
     # Determina o estado de posição:
-    # Se o valor em USDT for igual ou superior a 15, consideramos totalmente posicionado.
-    if valor_em_usdt >= 15:
+    # Se o valor em USDT for igual ou superior a 5, consideramos totalmente posicionado.
+    # Isso previne múltiplas compras do mesmo ativo.
+    if valor_em_usdt >= 5:
         return True, False  # Totalmente posicionado
     else:
         return False, True  # Não posicionado
