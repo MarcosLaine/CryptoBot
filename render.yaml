@@ -28,7 +28,7 @@ services:
     staticPublishPath: frontend/build
     envVars:
       - key: REACT_APP_API_URL
-        value: https://cryptobot-api.onrender.com
+        value: https://cryptobot-api-jcrn.onrender.com
     headers:
       - path: /*
         name: Cache-Control
