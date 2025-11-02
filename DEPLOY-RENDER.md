@@ -82,16 +82,34 @@ No arquivo `app.py`, a configuração já permite todas as origens:
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 ```
 
-### 4. Configurar Persistência do Banco de Dados
+### 4. Configurar Persistência do Banco de Dados (IMPORTANTE)
 
-O backend usa SQLite. Para persistir os dados:
+⚠️ **ATENÇÃO: No plano gratuito, o banco de dados SQLite NÃO é persistente!**
 
-1. No serviço Backend, vá em "Disks"
-2. Clique em "Add Disk"
-3. Configure:
+O serviço gratuito do Render **não suporta discos persistentes**. Isso significa que:
+- Os dados serão perdidos quando o serviço reiniciar
+- O serviço entra em "sleep" após 15 minutos de inatividade
+- Quando acordar, o banco será recriado vazio
+
+#### Opções:
+
+**Opção 1: Upgrade para Plano Pago (Recomendado para produção)**
+
+1. No serviço Backend, vá em "Settings" → "Plan"
+2. Upgrade para o plano **Starter ($7/mês)**
+3. Vá em "Disks" → "Add Disk"
+4. Configure:
    - **Name:** `cryptobot-db`
    - **Mount Path:** `/opt/render/project/src`
-   - **Size:** `1 GB`
+   - **Size:** `1 GB` (incluído no plano)
+
+**Opção 2: Usar PostgreSQL (Grátis, mas requer modificação do código)**
+
+Você pode usar o PostgreSQL gratuito do Render (500MB), mas precisará modificar o código para usar PostgreSQL ao invés de SQLite.
+
+**Opção 3: Aceitar a perda de dados (Apenas para testes)**
+
+Se você está apenas testando, pode usar o plano gratuito sabendo que os dados serão perdidos periodicamente.
 
 ### 5. URLs dos Serviços
 
@@ -121,6 +139,18 @@ Após o deploy, você terá:
 
 ## Troubleshooting
 
+### Erro no render.yaml
+
+Se você receber erros sobre disk ou region:
+- **"disks are not supported for free tier"**: Remova a seção `disk` do render.yaml ou faça upgrade para o plano pago
+- **"static sites cannot have a region"**: Remova a linha `region` do serviço frontend
+
+### Dados sendo perdidos
+
+No plano gratuito, isso é esperado. Para resolver:
+- Faça upgrade para o plano Starter ($7/mês)
+- Ou migre para PostgreSQL (gratuito com 500MB)
+
 ### Erro de Build no Frontend
 
 Se houver erro no build do frontend:
@@ -141,9 +171,11 @@ Verifique:
 
 ### Database não persiste
 
-Certifique-se de que:
-- O disco está configurado no serviço backend
-- O mount path está correto: `/opt/render/project/src`
+**No plano gratuito, isso é normal!** O SQLite é efêmero.
+
+Para persistir dados:
+- **Opção 1:** Upgrade para plano Starter ($7/mês) e adicione um disco
+- **Opção 2:** Migre para PostgreSQL (requer mudanças no código)
 
 ### Bot não inicia
 
@@ -154,17 +186,23 @@ Verifique:
 
 ## Custos
 
-### Plano Free (Recomendado para começar)
+### Plano Free (Para testes apenas)
 
 - ✅ Backend: Free (suspende após 15 min de inatividade)
 - ✅ Frontend: Free
-- ✅ Disco: Free (500 MB)
+- ⚠️ **Banco de dados NÃO é persistente** - dados serão perdidos ao reiniciar
 
-### Plano Starter (Para uso contínuo)
+### Plano Starter (Recomendado para uso real)
 
-- Backend: $7/mês (não suspende)
+- Backend: **$7/mês** (não suspende + disco persistente de 1GB incluído)
 - Frontend: Free
-- Disco: $1/GB/mês
+- ✅ Banco de dados persistente
+
+### Plano com PostgreSQL (Alternativa)
+
+- Backend: Free ou $7/mês
+- PostgreSQL: Free (500MB) ou $7/mês (10GB)
+- Requer modificação do código para usar PostgreSQL
 
 ## Atualizações
 
