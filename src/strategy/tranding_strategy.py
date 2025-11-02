@@ -65,14 +65,23 @@ def estrategia_trading(dados, ativo, client, is_totally_positioned, not_position
 
     # Se a média curta for menor ou igual que a média longa e o ativo estiver posicionado, venda
     if ultima_media_curta <= ultima_media_longa and (is_totally_positioned):
-        client.create_order(
-            symbol=ativo, 
-            side="SELL", 
-            type="MARKET", 
-            quantity=f"{saldo_disponivel:.{precision}f}",
-            recvWindow=60000
-        )
-        is_totally_positioned = False
-        return is_totally_positioned, " Venda realizada"
+        # Ajustar quantidade de venda para o saldo disponível real
+        # Arredondar para baixo para garantir que não exceda o saldo
+        quantidade_venda = math.floor(saldo_disponivel / step_size) * step_size
+        quantidade_venda = round(quantidade_venda, precision)
+        
+        # Verificar se a quantidade está acima do mínimo
+        if quantidade_venda >= min_qty:
+            client.create_order(
+                symbol=ativo, 
+                side="SELL", 
+                type="MARKET", 
+                quantity=f"{quantidade_venda:.{precision}f}",
+                recvWindow=60000
+            )
+            is_totally_positioned = False
+            return is_totally_positioned, " Venda realizada"
+        else:
+            return is_totally_positioned, f" Saldo insuficiente para venda (disponível: {saldo_disponivel}, mínimo: {min_qty})"
 
     return is_totally_positioned, " Nenhuma ação realizada"
