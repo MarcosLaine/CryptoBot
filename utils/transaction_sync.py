@@ -3,7 +3,9 @@ from binance.client import Client
 import os
 from dotenv import load_dotenv
 
-DB_PATH = 'cryptobot.db'
+# Use persistent disk path for Render or current directory for local development
+DB_DIR = os.environ.get('RENDER') and '/opt/render/project/src' or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DB_PATH = os.path.join(DB_DIR, 'cryptobot.db')
 
 def sync_transactions_from_binance(user_id):
     """

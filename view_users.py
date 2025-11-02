@@ -4,8 +4,11 @@ Script para visualizar usuários cadastrados no CryptoBot
 """
 import sqlite3
 from datetime import datetime
+import os
 
-DB_PATH = 'cryptobot.db'
+# Use persistent disk path for Render or current directory for local development
+DB_DIR = os.environ.get('RENDER') and '/opt/render/project/src' or os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(DB_DIR, 'cryptobot.db')
 
 def view_users():
     """Lista todos os usuários cadastrados no sistema"""

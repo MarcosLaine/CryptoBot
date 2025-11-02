@@ -21,8 +21,11 @@ def run_bot_loop(api_key=None, api_secret=None, stop_flag=None, user_id=None, ch
         enabled_assets: Lista de ativos habilitados
     """
     import sqlite3
+    import os
     
-    DB_PATH = 'cryptobot.db'
+    # Use persistent disk path for Render or current directory for local development
+    DB_DIR = os.environ.get('RENDER') and '/opt/render/project/src' or os.path.dirname(os.path.abspath(__file__))
+    DB_PATH = os.path.join(DB_DIR, 'cryptobot.db')
     if api_key and api_secret:
         # Criar cliente Binance
         client = Client(api_key, api_secret)
@@ -160,7 +163,9 @@ def run_bot_loop(api_key=None, api_secret=None, stop_flag=None, user_id=None, ch
 def main():
     import sqlite3
     
-    DB_PATH = 'cryptobot.db'
+    # Use persistent disk path for Render or current directory for local development
+    DB_DIR = os.environ.get('RENDER') and '/opt/render/project/src' or os.path.dirname(os.path.abspath(__file__))
+    DB_PATH = os.path.join(DB_DIR, 'cryptobot.db')
     load_dotenv()
     api_key = os.getenv("KEY_BINANCE")
     api_secret = os.getenv("SECRET_BINANCE")
