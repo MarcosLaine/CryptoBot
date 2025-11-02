@@ -276,7 +276,7 @@ def register():
         user_id = cursor.lastrowid
         conn.close()
         
-        access_token = create_access_token(identity=user_id)
+        access_token = create_access_token(identity=str(user_id))
         return jsonify({
             "message": "User registered successfully",
             "access_token": access_token,
@@ -302,7 +302,7 @@ def login():
     conn.close()
     
     if user and check_password_hash(user[1], password):
-        access_token = create_access_token(identity=user[0])
+        access_token = create_access_token(identity=str(user[0]))
         return jsonify({
             "message": "Login successful",
             "access_token": access_token,
@@ -314,7 +314,7 @@ def login():
 @app.route('/api/portfolio', methods=['GET'])
 @jwt_required()
 def get_portfolio():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     try:
         client = get_binance_client(user_id)
     except ValueError as e:
@@ -436,7 +436,7 @@ def get_portfolio():
 @app.route('/api/transactions', methods=['GET'])
 @jwt_required()
 def get_transactions():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     limit = request.args.get('limit', 50, type=int)
     
     conn = sqlite3.connect(DB_PATH)
@@ -466,7 +466,7 @@ def get_transactions():
 @app.route('/api/stats', methods=['GET'])
 @jwt_required()
 def get_stats():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     try:
         client = get_binance_client(user_id)
     except ValueError:
@@ -546,7 +546,7 @@ def get_stats():
 @jwt_required()
 def get_api_keys():
     """Get API keys for current user (without secret)"""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute('SELECT api_key FROM api_keys WHERE user_id = ?', (user_id,))
@@ -565,7 +565,7 @@ def get_api_keys():
 @jwt_required()
 def save_api_keys():
     """Save or update API keys for current user"""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     data = request.get_json()
     api_key = data.get('api_key')
     api_secret = data.get('api_secret')
@@ -623,7 +623,7 @@ def save_api_keys():
 @jwt_required()
 def get_bot_status():
     """Get bot status for current user"""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     
     # Check if thread actually exists and is alive
     thread_is_alive = user_id in bot_threads and bot_threads[user_id].is_alive()
@@ -669,7 +669,7 @@ def get_bot_status():
 @jwt_required()
 def start_bot():
     """Start bot for current user"""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     
     # Check if bot is already running
     if user_id in bot_threads and bot_threads[user_id].is_alive():
@@ -746,7 +746,7 @@ def start_bot():
 @jwt_required()
 def stop_bot():
     """Stop bot for current user"""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     
     # Check if thread actually exists and is alive
     thread_is_alive = user_id in bot_threads and bot_threads[user_id].is_alive()
@@ -827,7 +827,7 @@ def stop_bot():
 @jwt_required()
 def get_bot_settings():
     """Get bot settings for current user"""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute('SELECT check_interval_minutes FROM bot_settings WHERE user_id = ?', (user_id,))
@@ -848,7 +848,7 @@ def get_bot_settings():
 @jwt_required()
 def save_bot_settings():
     """Save bot settings for current user"""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     data = request.get_json()
     check_interval_minutes = data.get('check_interval_minutes')
     
@@ -896,7 +896,7 @@ def save_bot_settings():
 @jwt_required()
 def sync_transactions():
     """Sync transactions from Binance order history"""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     try:
         client = get_binance_client(user_id)
     except ValueError:
@@ -980,7 +980,7 @@ def get_available_assets():
 @jwt_required()
 def get_asset_settings():
     """Get asset settings for current user"""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
@@ -1018,7 +1018,7 @@ def get_asset_settings():
 @jwt_required()
 def reset_transactions():
     """Reset all transactions for current user (resets total invested and return calculations)"""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     
     # Check if bot is running
     conn = sqlite3.connect(DB_PATH)
@@ -1054,7 +1054,7 @@ def reset_transactions():
 @jwt_required()
 def save_asset_settings():
     """Save asset settings for current user"""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     data = request.get_json()
     assets = data.get('assets', [])
     
