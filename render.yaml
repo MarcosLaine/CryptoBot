@@ -3,7 +3,7 @@ services:
   - type: web
     name: cryptobot-api
     env: python
-    region: oregon
+    region: frankfurt
     plan: starter
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app
