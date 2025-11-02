@@ -1,38 +1,42 @@
+# Arquivos e diretórios para ignorar no Git
+
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
 venv/
-env/
 ENV/
-.venv
-*.db
-*.sqlite
-*.sqlite3
+env/
 
 # Environment variables
 .env
 .env.local
+.env.*.local
 .encryption_key
 
 # Database
-cryptobot.db
-
-# Frontend
-frontend/node_modules/
-frontend/build/
-frontend/.env.local
-frontend/.env.development.local
-frontend/.env.test.local
-frontend/.env.production.local
-
-# PWA - Keep icon source files but ignore generated icons in some cases
-# Note: We keep the icons in git for deployment, but you can uncomment these if generating them dynamically
-# frontend/public/icon-*.png
-# frontend/public/apple-touch-icon.png
-# frontend/public/favicon.ico
+*.db
+*.sqlite
+*.sqlite3
 
 # IDE
 .vscode/
@@ -41,11 +45,30 @@ frontend/.env.production.local
 *.swo
 *~
 
+# Logs
+*.log
+logs/
+
 # OS
 .DS_Store
 Thumbs.db
 
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# Frontend
+frontend/node_modules/
+frontend/build/
+frontend/.env
+frontend/.env.local
+frontend/.env.production.local
+frontend/.env.development.local
+frontend/.env.test.local
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# Temporary files
+*.tmp
+temp/
+tmp/
